@@ -1,0 +1,63 @@
+package com.vir.servlet;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+
+import com.model.Room;
+import com.service.RoomService;
+import com.service.RoomServiceImpl;
+
+/**
+ * Servlet implementation class SearchRoomServlet
+ */
+@WebServlet("/SearchRoomServlet")
+public class SearchRoomServlet extends HttpServlet {
+	private static final Logger logger = Logger.getRootLogger();
+	RoomService roomService = new RoomServiceImpl();
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public SearchRoomServlet() {
+		super();
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+//select room details from room either by using room id or room name
+		String searchby = request.getParameter("search");
+		String room = request.getParameter("room");
+		String user=request.getParameter("userid");
+		request.setAttribute("username", user);
+		logger.debug
+		if (searchby.equals("roomid")) {
+			Room foundRoom = roomService.findByRoomId(room);
+			request.setAttribute("room", foundRoom);
+			
+			
+
+		} else if (searchby.equals("roomname")) {
+			Room foundRoom = roomService.findByRoomName("room");
+			request.setAttribute("room", foundRoom);
+
+		} else
+		{
+			
+			logger.error("Invalid details");
+		}
+		request.getRequestDispatcher("/RoomReservation.jsp").forward(request, response);
+	}
+
+}

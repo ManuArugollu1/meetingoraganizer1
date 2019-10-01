@@ -1,0 +1,37 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+ <% List<Room> users=(List <Room>) request.getAttribute("users");
+out.println("size(users)" 
+		+users.size());
+%>
+<br>
+<table border=1>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>UserName</th>
+<th>Password</th>
+<th>Mobile Number</th>
+</tr>
+<% for (Room room: rooms)
+{
+	out.println("<tr>");
+	out.println("<td>"+room.getRoomId()+"</td>");
+	out.println("<td>"+room.getRoomName()+"</td>");
+	out.println("<td>"+room.getFloor()+"</td>");
+	out.println("<td>"+room.getRoomIncharge()+"</td>");
+	out.println("<td>"+room.getCapacity()+"</td>");
+	out.println("<td>"+room.getStatus()+"</td>");
+	out.println("</tr>");
+	
+}%>
+</table>
+</body>
+</html>

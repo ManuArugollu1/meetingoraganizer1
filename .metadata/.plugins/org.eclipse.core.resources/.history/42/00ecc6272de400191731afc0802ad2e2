@@ -1,0 +1,251 @@
+package com.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.Jdbc.Connection.DbConnection;
+import com.model.MOrganizer;
+import com.model.Room;
+
+public class RoomDaoImpl implements RoomDao {
+	private static final Logger logger=Logger.getRootLogger();
+	public Connection conn=null;
+	public PreparedStatement ps=null;
+	public ResultSet rs=null;
+
+
+	@Override
+	public Room findByRoomId(String roomId) {
+		try {
+			conn=DbConnection.getConnection();
+			ps=conn.prepareStatement("select * from room where roomid=?");
+			ps.setString(1, roomId);
+			rs=ps.executeQuery();
+			//conn.commit();
+			while(rs.next())
+			{
+				logger.debug(rs.getString("roomid"));
+				logger.debug(rs.getString("roomname"));
+				logger.debug(rs.getString("floor"));
+				logger.debug(rs.getInt("capacity"));
+				logger.debug(rs.getString("incharge"));
+				logger.debug(rs.getString("status"));
+
+			}
+			rs.close();
+			ps.close();
+			conn.close();
+		} catch (Exception e) {
+			logger.debug(e);
+		}
+
+		return null;
+	}
+
+
+	@Override
+	public Room findByRoomName(String roomName) {
+
+		try {
+			conn=DbConnection.getConnection();
+			ps=conn.prepareStatement("select * from room where roomname=?");
+			ps.setString(1, roomName);
+			rs=ps.executeQuery();
+			conn.commit();
+			while(rs.next())
+			{
+				logger.debug(rs.getString("roomid"));
+				logger.debug(rs.getString("roomname"));
+				logger.debug(rs.getString("floor"));
+				logger.debug(rs.getInt("capacity"));
+				logger.debug(rs.getString("incharge"));
+				logger.debug(rs.getString("status"));
+
+			}
+			rs.close();
+			ps.close();
+			conn.close();
+		} catch (Exception e) {
+			logger.debug(e);
+		}
+
+		return null;
+	}
+	
+
+	@Override
+	public Room addRoomInfo(Room room) {
+		String roomId=room.getRoomId();
+		String roomName=room.getRoomName();
+		String floor=room.getFloor();
+		String roomIncharge=room.getRoomIncharge();
+		int capacity=room.getCapacity();
+		String status=room.getStatus();
+
+		try {
+			conn=DbConnection.getConnection();
+
+			ps=conn.prepareStatement("insert into room(roomid,roomname,floor,incharge,capacity,status) values(?,?,?,?,?,?)");
+
+			ps.setString(1, roomId);
+			ps.setString(2, roomName);
+			ps.setString(3,floor);
+			ps.setString(4,roomIncharge);
+			ps.setInt(5, capacity);
+			ps.setString(6, status);
+			rs=ps.executeQuery();
+			conn.commit();
+
+
+		} catch (SQLException e) {
+			logger.fatal("SQL exception occurred",e);
+		}catch(NullPointerException e)
+		{
+			logger.fatal("Class Not Found Exception occurred",e);
+		}
+		finally {
+			try
+			{
+
+				rs.close();
+				if(ps!=null)
+					ps.close();
+				if(conn!=null)
+					conn.close();
+
+			}
+			catch(SQLException e)
+			{
+				logger.fatal("SQL Exception.",e);
+			}
+		}
+
+		return room;
+	}
+
+
+	@Override
+	public Room deleteRoomInfo(String roomId) {
+		try {
+			conn=DbConnection.getConnection();
+			ps=conn.prepareStatement("delete from room where roomid=?");
+
+			ps.setString(1, roomId);
+			rs=ps.executeQuery();
+			conn.commit();
+
+		} catch (SQLException e) {
+			logger.fatal("SQL Exception.",e);
+		}
+		finally {
+			try {
+				if(rs!=null)
+					rs.close();
+				if(ps!=null)
+					ps.close();
+				if(conn!=null)
+					conn.close();
+
+			}
+			catch(SQLException e)
+			{
+				logger.fatal("SQL Exception occurred",e);
+			}
+		}
+
+		return null;
+
+	}
+
+	@Override
+	public Room updateRoomStatus(String roomId,String roomName,String status) {
+		try {
+
+			conn=DbConnection.getConnection();
+			ps=conn.prepareStatement("update room set status=? where roomid=? and roomname=?");
+
+			ps.setString(1, status);
+			ps.setString(2, roomId);
+			ps.setString(3, roomName);
+
+
+			rs=ps.executeQuery();
+			conn.commit();
+			logger.debug("status updated");
+
+		} catch (SQLException e) {
+			logger.fatal("SQL Exception occurred",e);
+		}
+		catch(NullPointerException e)
+		{
+			logger.fatal("Null Pointer exception occurred",e);
+		}
+		finally {
+			try
+			{
+				if(rs!=null)
+					rs.close();
+				if(ps!=null)
+					ps.close();
+				if(conn!=null)
+					conn.close();
+
+			}
+			catch(SQLException e)
+			{
+				logger.fatal("SQL Exception occurred",e);
+			}
+		}
+		return null;
+	}
+
+
+	@Override
+	public List<Room> findAll() {
+
+		
+		List<Room> roomList = new ArrayList<>();
+		try {
+			conn = DbConnection.getConnection();
+
+			ps = conn.prepareStatement("select * from room");
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				roomList.add(getRoomFromResultSet(rs));
+			}
+			rs.close();
+			ps.close();
+
+		} catch (Exception e) {
+			logger.error(e);
+		}
+
+		return roomList;
+	}
+
+	private Room getRoomFromResultSet(ResultSet rs) {
+		try {
+			String roomId = rs.getString("roomid");
+			String roomName = rs.getString("roomname");
+			String floor = rs.getString("floor");
+			String incharge = rs.getString("incharge");
+			int capacity = rs.getInt("capacity");
+			String status=rs.getString("status");
+			Room room=new Room(roomId, roomName, floor, incharge,capacity,status);
+			logger.trace(room);
+			return room;
+		} catch (SQLException e) {
+			logger.error(e);
+		}
+		return null;	}
+
+
+
+}
